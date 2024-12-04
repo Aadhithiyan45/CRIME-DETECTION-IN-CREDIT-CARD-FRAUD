@@ -1,0 +1,139 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class CreditCardFraudDetectionSystem extends JFrame {
+    private JTextField transactionIDField, amountField, timeField, tvcField;
+    private JLabel locationLabel;
+    private JTextArea resultArea;
+
+    public CreditCardFraudDetectionSystem() {
+        // Frame settings
+        setTitle("Credit Card Fraud Detection System");
+        setSize(500, 550);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(null);
+
+        // Header
+        JLabel headerLabel = new JLabel("Credit Card Fraud Detection System", JLabel.CENTER);
+        headerLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        headerLabel.setBounds(20, 10, 440, 30);
+        add(headerLabel);
+
+        // Transaction ID
+        JLabel transactionIDLabel = new JLabel("Transaction ID:");
+        transactionIDLabel.setBounds(20, 60, 150, 25);
+        add(transactionIDLabel);
+        transactionIDField = new JTextField();
+        transactionIDField.setBounds(200, 60, 200, 25);
+        add(transactionIDField);
+
+        // Amount
+        JLabel amountLabel = new JLabel("Transaction Amount:");
+        amountLabel.setBounds(20, 100, 150, 25);
+        add(amountLabel);
+        amountField = new JTextField();
+        amountField.setBounds(200, 100, 200, 25);
+        add(amountField);
+
+        // Time
+        JLabel timeLabel = new JLabel("Time (HH:mm):");
+        timeLabel.setBounds(20, 140, 150, 25);
+        add(timeLabel);
+        timeField = new JTextField();
+        timeField.setBounds(200, 140, 200, 25);
+        add(timeField);
+
+        // TVC (Two-Factor Authentication)
+        JLabel tvcLabel = new JLabel("Verification Code:");
+        tvcLabel.setBounds(20, 180, 150, 25);
+        add(tvcLabel);
+        tvcField = new JTextField();
+        tvcField.setBounds(200, 180, 200, 25);
+        add(tvcField);
+
+        // Submit Button
+        JButton submitButton = new JButton("Submit");
+        submitButton.setBounds(150, 230, 150, 40);
+        add(submitButton);
+
+        // Results Area
+        resultArea = new JTextArea();
+        resultArea.setBounds(20, 300, 440, 180);
+        resultArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        resultArea.setEditable(false);
+        resultArea.setBorder(BorderFactory.createTitledBorder("Results"));
+        add(resultArea);
+
+        // Location Label
+        locationLabel = new JLabel("");
+        locationLabel.setBounds(20, 270, 440, 25);
+        add(locationLabel);
+
+        // Button Action
+        submitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                detectFraud();
+            }
+        });
+
+        setVisible(true);
+    }
+
+    private void detectFraud() {
+        try {
+            int transactionID = Integer.parseInt(transactionIDField.getText());
+            double amount = Double.parseDouble(amountField.getText());
+            String time = timeField.getText();
+            String tvc = tvcField.getText();
+
+            // Determine location
+            String location = (transactionID >= 1 && transactionID <= 50) ? "Woraiyur" : "Samyapuram";
+
+            // Fraud Detection Logic
+            boolean isFraudulent = false;
+            StringBuilder reason = new StringBuilder();
+            String[] timeParts = time.split(":");
+            int hour = Integer.parseInt(timeParts[0]);
+
+            // Rule 1: Unusual Transaction Time
+            if (hour >= 1 && hour <= 5) {
+                isFraudulent = true;
+                reason.append("- Transaction occurred at unusual hours (1 AM to 5 AM).\n");
+            }
+
+            // Rule 2: High Transaction Amount
+            if (amount > 25000) {
+                isFraudulent = true;
+                reason.append("- Transaction amount exceeds the limit of ₹25,000.\n");
+            }
+
+            // Rule 3: Two-Factor Authentication (TVC)
+            String expectedTVC = "12345"; // Example hardcoded TVC for simplicity
+            if (!tvc.equals(expectedTVC)) {
+                isFraudulent = true;
+                reason.append("- Incorrect Two-Factor Verification Code.\n");
+            }
+
+            // Display Results
+            if (isFraudulent) {
+                resultArea.setText("ALERT: Fraudulent Transaction Detected!\n");
+                resultArea.append("Reasons:\n" + reason.toString());
+                resultArea.append("\nAlert sent to registered customer number.");
+            } else {
+                resultArea.setText("Transaction is Legitimate.\n");
+                resultArea.append("Transaction is Finished Successfully.");
+            }
+            locationLabel.setText("Transaction Location: " + location);
+        } catch (Exception ex) {
+            resultArea.setText("Invalid Input! Please check your entries.");
+            locationLabel.setText("");
+        }
+    }
+
+    public static void main(String[] args) {
+        new CreditCardFraudDetectionSystem();
+    }
+}
